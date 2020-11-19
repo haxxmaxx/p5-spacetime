@@ -20,6 +20,8 @@ const planetGreen = {
     revTime: 6000,
   },
   moon: {
+    double: true,
+    rotating: true, 
     color: '#aed6ae',
     size: 20,
     revRadius: 60,
@@ -34,6 +36,7 @@ const planetOrange = {
     revTime: 8000,
   },
   moon: {
+    rotating: true,
     color: '#ffe294',
     size: 30,
     revRadius: 100,

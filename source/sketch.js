@@ -15,7 +15,8 @@ function windowResized() {
 }
 
 function draw() {
-  background(0);
+  background(10);
+  stroke(10);
   resetSolarSystem();
   
   // build solarsystem
