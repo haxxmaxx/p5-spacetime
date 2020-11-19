@@ -2,23 +2,68 @@ let w;
 let h;
 let solarSystem;
 
-const planet1 = {
+const planetblue = {
   planet: {
     color: '#25a7cf',
-    size: 150,
-    revRadius: 600,
+    size: 50,
+    revRadius: 200,
     revTime: 5000,
   },
   moon: {
     color: '#f5eec6',
+    size: 15,
+    revRadius: 50,
+    revTime: 2000,
+  },
+}
+const planetGreen = {
+  planet: {
+    color: '#43d145',
     size: 60,
-    revRadius: 120,
+    revRadius: 400,
+    revTime: 6000,
+  },
+  moon: {
+    color: '#aed6ae',
+    size: 20,
+    revRadius: 60,
     revTime: 3000,
   },
 }
+const planetOrange = {
+  planet: {
+    color: '#fa9b1e',
+    size: 90,
+    revRadius: 600,
+    revTime: 8000,
+  },
+  moon: {
+    color: '#ffe294',
+    size: 30,
+    revRadius: 100,
+    revTime: 2000,
+  },
+}
+const planetPurple = {
+  planet: {
+    color: '#a657eb',
+    size: 30,
+    revRadius: 800,
+    revTime: 10000,
+  },
+  // moon: {
+  //   color: '#f5eec6',
+  //   size: 60,
+  //   revRadius: 120,
+  //   revTime: 3000,
+  // },
+}
 
 const planetList = [
-  planet1,
+  planetblue,
+  planetGreen,
+  planetOrange,
+  planetPurple,
 ];
 
 function setup() {
@@ -38,23 +83,26 @@ const resetSolarSystem = () => {
   solarSystem = [
     {
       color: '#fcdf3a',
-      size: 300,
+      size: 150,
       x: w/2,
       y: h/2,
     }
   ];
 }
 
-const createPlanetAndMoon = (planetMoonPair) => {
-  const planet = createCircle(planetMoonPair.planet);
-  const moon = createCircle(planetMoonPair.moon, planet.x, planet.y);
-  const moonRevTime = planetMoonPair.moon.revTime
-  console.log(millis(), moonRevTime)
-
-  return millis() % moonRevTime >= moonRevTime / 2 ? [planet, moon] : [moon, planet];
+const createPlanetWithMoon = (planetMeta) => {
+  const planet = createBody(planetMeta.planet);
+  if (planetMeta.moon) {
+    const moon = createBody(planetMeta.moon, planet.x, planet.y);
+    const moonRevTime = planetMeta.moon.revTime
+  
+    return millis() % moonRevTime >= moonRevTime / 2 ? [planet, moon] : [moon, planet];
+  }
+  
+  return [planet];
 }
 
-const createCircle = (meta,  x0 = w/2 , y0 = h/2) => {
+const createBody = (meta,  x0 = w/2 , y0 = h/2) => {
   const { color, size, revRadius, revTime } = meta;
   return {
     color, 
@@ -65,17 +113,17 @@ const createCircle = (meta,  x0 = w/2 , y0 = h/2) => {
 }
 
 const buildSolarSystem = () => {
-  planetList.forEach(planet => {
-    planetCoords = createPlanetAndMoon(planet);
-    const planetRevTime = planet.planet.revTime
+  planetList.forEach(planetMeta => {
+    planetMoonPair = createPlanetWithMoon(planetMeta);
+    const planetRevTime = planetMeta.planet.revTime
 
     solarSystem = millis() % planetRevTime >= planetRevTime / 2 ?
-      solarSystem.concat(planetCoords) :
-      planetCoords.concat(solarSystem);
+      solarSystem.concat(planetMoonPair) :
+      planetMoonPair.concat(solarSystem);
   });
 }
 
-const drawCircle = ({ color, size, x, y }) => {
+const drawBody = ({ color, size, x, y }) => {
   fill(color);
   ellipse(x, y, size, size);
 }
@@ -88,5 +136,5 @@ function draw() {
   buildSolarSystem();
   
   // draw bodies
-  solarSystem.forEach(circle => drawCircle(circle));
+  solarSystem.forEach(circle => drawBody(circle));
 }
