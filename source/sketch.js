@@ -18,8 +18,9 @@ function draw() {
   background(10);
   stroke(10);
   resetSolarSystem();
+  modifyParameters();
   
-  // build solarsystem
+  // Create an array 
   buildSolarSystem();
   
   // draw bodies

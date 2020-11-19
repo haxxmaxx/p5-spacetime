@@ -57,11 +57,3 @@ const planetPurple = {
   //   revTime: 3000,
   // },
 }
-  
-const planetList = [
-  planetblue,
-  planetGreen,
-  planetOrange,
-  planetPurple,
-];
-  

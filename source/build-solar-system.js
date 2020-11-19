@@ -1,4 +1,5 @@
 let solarSystem;
+let planetList;
 
 function resetSolarSystem() {
     solarSystem = [
@@ -9,6 +10,31 @@ function resetSolarSystem() {
             y: h/2,
         }
     ];
+    planetList = [
+        JSON.parse(JSON.stringify(planetblue)),
+        JSON.parse(JSON.stringify(planetGreen)),
+        JSON.parse(JSON.stringify(planetOrange)),
+        JSON.parse(JSON.stringify(planetPurple)),
+    ]
+}
+
+function modifyParameters() {
+    const sizeFactor = mouseY / 400;
+    console.log(sizeFactor)
+    const speedFactor = 100 / (mouseX - w/2);
+
+    solarSystem[0].size *= sizeFactor;
+    planetList.forEach((planet) => {
+        planet.planet.size *= sizeFactor;
+        planet.planet.revRadius *= sizeFactor;
+        planet.planet.revTime *= speedFactor;
+
+        if (planet.moon) {
+            planet.moon.size *= sizeFactor;
+            planet.moon.revRadius *= sizeFactor;
+            planet.moon.revTime *= speedFactor;
+        }
+    });
 }
 
 function createPlanetWithMoon(planetMeta) {
@@ -17,14 +43,14 @@ function createPlanetWithMoon(planetMeta) {
     if (planetMeta.moon) {
         const moonMeta = planetMeta.moon;
         const moon = createBody(moonMeta, planet.x, planet.y);
+        let isInFront = millis() % abs(moonMeta.revTime) >= abs(moonMeta.revTime) / 2;
+        moonMeta.revTime < 0 && (isInFront = !isInFront);
 
         if (!moonMeta.double) {
-            return millis() % moonMeta.revTime >= moonMeta.revTime / 2 ? [planet, moon] : [moon, planet];
+            return isInFront ? [planet, moon] : [moon, planet];
         } else {
             const moonOpposite = createBody(moonMeta, planet.x, planet.y, PI)
-            return millis() % moonMeta.revTime >= moonMeta.revTime / 2 ?
-                [moonOpposite, planet, moon] :
-                [moon, planet, moonOpposite];
+            return isInFront ? [moonOpposite, planet, moon] : [moon, planet, moonOpposite];
         }
     }
 
@@ -49,17 +75,15 @@ function createBody(meta, x0 = w/2, y0 = h/2, phase = 0 ) {
     const { rotating, color, size, revRadius, revTime } = meta;
     let radiusDialationX = 1;
     let radiusDialationY = .25;
-    const angle = TWO_PI * millis() / revTime + phase;
+    const angle = (TWO_PI * millis() / revTime + phase);
     const coord = {
         x: x0 + revRadius * radiusDialationX * Math.cos(angle),
         y: y0 - revRadius * radiusDialationY * Math.sin(angle),
     }
 
     if (rotating) {
-        rotateMoon(x0, y0, angle / 20, coord);
+        rotateMoon(x0, y0, angle / 20 + PI, coord);
     }
-
-    console.log(revRadius * radiusDialationX * Math.cos(TWO_PI * millis() / revTime))
     
     return {
         color, 
@@ -72,11 +96,11 @@ function createBody(meta, x0 = w/2, y0 = h/2, phase = 0 ) {
 function buildSolarSystem() {
     planetList.forEach(planetMeta => {
         planetMoonPair = createPlanetWithMoon(planetMeta);
-        const planetRevTime = planetMeta.planet.revTime
+        const revTime = planetMeta.planet.revTime;
+        let isInFront = millis() % abs(revTime) >= abs(revTime) / 2;
+        revTime < 0 && (isInFront = !isInFront);
 
-        solarSystem = millis() % planetRevTime >= planetRevTime / 2 ?
-            solarSystem.concat(planetMoonPair) :
-            planetMoonPair.concat(solarSystem);
+        solarSystem = isInFront ? solarSystem.concat(planetMoonPair) : planetMoonPair.concat(solarSystem);
     });
 }
 
